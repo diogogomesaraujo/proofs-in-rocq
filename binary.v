@@ -10,26 +10,19 @@ Module BinaryNum.
     Notation "0" := zero.
     Notation "1" := one.
 
-    Notation " d || n " := (a (n: num) (d: digit) ).
+    Notation " d <> n " := (a (n: num) (d: digit) ).
 
     Example example_zero:
-        a no zero =  0 || no.
+        a no zero =  (0 <> no).
     Proof. reflexivity. Qed.
 
     Example example_three:
-        a (a no one) one = 1 || (1 || no).
+        a (a no one) one = (1 <> (1 <> no)).
     Proof. reflexivity. Qed.
 
     Example example_five:
-        a (a (a no one) zero ) one = 1 || (0 || (1 || no)).
+        a (a (a no one) zero ) one = (1 <> (0 <> (1 <> no))).
     Proof. reflexivity. Qed.
-
-    Definition sum_digit (a b r: digit) : digit * digit :=
-        match (a, b, r) with
-        | (1, 1, 1) => (1, 1)
-        | (1, 0, 1) | (1, 1, 0) | (0, 1, 1) => (0, 1)
-        | _ => (1, 0)
-        end.
 
     Fixpoint sum_single (y : num) (r : digit) {struct y} : num :=
         match y, r with
@@ -43,6 +36,13 @@ Module BinaryNum.
         | no, 1 => a no 1
         end.
 
+    Definition sum_digit (a b r: digit) : digit * digit :=
+        match (a, b, r) with
+        | (1, 0, 1) | (1, 1, 0) | (0, 1, 1) => (0, 1)
+        | (1, 1, 1) => (1, 1)
+        | _ => (1, 0)
+        end.
+
     Fixpoint sum_rec (x y : num) (r : digit) {struct x} : num := 
         match x, y with
         | a x' dx, no => 
@@ -51,18 +51,18 @@ Module BinaryNum.
         | a x' dx, a y' dy =>
             let (s, r') := sum_digit dx dy r in
             a (sum_rec x' y' r') s (*structurally smaller argument on the left*)
-        | no, _ =>
-            sum_single y r
+        | no, y' => 
+            sum_single y' r
         end.
 
     Definition sum (x y: num) : num :=
         sum_rec x y 0.
     
-    Compute sum (0 || (0 || (1 || no))) (1 || (1 || (0 || no))).
+    Compute sum (0 <> (1 <> (1 <> no))) (1 <> (1 <> (0 <> no))).
 
-    Example sum_1_4: sum (1|| (1 || no)) (1 || (0 || (0 || no))) =
-            (1 || (1|| (1 || no))).
+    Example sum_1_4: sum (1 <> (1 <> no)) (1 <> no) =
+            a (a (a no 1) 0) 0.
     Proof. simpl. compute. reflexivity. Qed.
 
-    Compute sum (1 || (0 || (1 || no))) (1 || (0 || (0 || no))).
+    Compute sum (1 <> (0 <> (1 <> no))) (1 <> (0 <> (0 <> no))).
 End BinaryNum.
