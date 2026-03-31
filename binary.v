@@ -4,25 +4,24 @@ Module BinaryNum.
         | one.
     
     Inductive num : Type := 
-        | a (dig : digit) (n : num)
+        | a (n : num) (dig : digit)
         | no.
 
     Notation "0" := zero.
     Notation "1" := one.
 
-    Notation " d || n " := (a (d: digit) (n: num)).
-
+    Notation " d || n " := (a (n: num) (d: digit) ).
 
     Example example_zero:
-        a zero no =  0 || no.
+        a no zero =  0 || no.
     Proof. reflexivity. Qed.
 
     Example example_three:
-        a one (a one no) = 1 || (1 || no).
+        a (a no one) one = 1 || (1 || no).
     Proof. reflexivity. Qed.
 
     Example example_five:
-        a one (a zero (a one no)) = 1 || (0 || (1 || no)).
+        a (a (a no one) zero ) one = 1 || (0 || (1 || no)).
     Proof. reflexivity. Qed.
 
     Definition sum_digit (a b r: digit) : digit * digit :=
@@ -34,24 +33,24 @@ Module BinaryNum.
 
     Fixpoint sum_single (y : num) (r : digit) {struct y} : num :=
         match y, r with
-        | a 1 y', 0 | a 0 y', 1 =>
-            a 1 (sum_single y' 0)
-        | a 1 y', 1 =>
-            a 1 (sum_single y' 1)
-        | a 0 y', 0 =>
-            a 0 (sum_single y' 0)
+        | a y' 1, 0 | a y' 0, 1 =>
+            a (sum_single y' 0) 1
+        | a y' 1, 1 =>
+            a (sum_single y' 1) 1
+        | a y' 0, 0 =>
+            a (sum_single y' 0) 0
         | no, 0 => no
-        | no, 1 => a 1 no
+        | no, 1 => a no 1
         end.
 
     Fixpoint sum_rec (x y : num) (r : digit) {struct x} : num := 
         match x, y with
-        | a dx x', no => 
-            let (s, r') := sum_digit dx 0 r in
-            a s (sum_rec x' no r') 
-        | a dx x', a dy y' =>
+        | a x' dx, no => 
+            let (s, r') := sum_digit 0 dx r in
+            a (sum_rec x' no r') s
+        | a x' dx, a y' dy =>
             let (s, r') := sum_digit dx dy r in
-            a s (sum_rec x' y' r')  (*structurally smaller argument on the left*)
+            a (sum_rec x' y' r') s (*structurally smaller argument on the left*)
         | no, _ =>
             sum_single y r
         end.
@@ -60,5 +59,10 @@ Module BinaryNum.
         sum_rec x y 0.
     
     Compute sum (0 || (0 || (1 || no))) (1 || (1 || (0 || no))).
-    Compute sum (1 || (0 || (1 || no))) (1 || (1 || (0 || no))).
+
+    Example sum_1_4: sum (1|| (1 || no)) (1 || (0 || (0 || no))) =
+            (1 || (1|| (1 || no))).
+    Proof. simpl. compute. reflexivity. Qed.
+
+    Compute sum (1 || (0 || (1 || no))) (1 || (0 || (0 || no))).
 End BinaryNum.
