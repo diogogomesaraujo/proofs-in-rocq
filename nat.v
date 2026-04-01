@@ -19,3 +19,13 @@ Proof.
           rewrite IHproof_n. 
           reflexivity.
 Qed.
+
+Theorem sum_zero : forall n m : nat, n = 0 ->
+    m + n = m.
+Proof. 
+    intros n.
+    intros m.
+    intros H.
+    rewrite H.
+    apply identity.
+Qed.
