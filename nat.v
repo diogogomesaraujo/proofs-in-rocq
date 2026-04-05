@@ -58,3 +58,11 @@ Proof.
             - assumption.
             - assumption.
 Qed.            
+
+Theorem comm: forall n m: nat,
+    n + m = m + n.
+Proof.
+    intros n.
+    intros m.
+    apply Nat.add_comm.
+Qed.
