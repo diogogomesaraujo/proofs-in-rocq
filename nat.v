@@ -66,3 +66,9 @@ Proof.
     intros m.
     apply Nat.add_comm.
 Qed.
+
+Theorem p1: forall n m, 
+    n -> (n -> m) -> m.
+Proof.
+    firstorder.
+Qed.
